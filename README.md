@@ -175,7 +175,7 @@ GEMINI_API_KEY="your-api-key-here"
 - `autoApprove`の使用は必要最小限に
 - 環境変数は`.env`ファイルで管理し、`.gitignore`に追加
 
-## 💬 チャットCLIの使用
+
 
 ### 基本的な使い方
 ```bash
@@ -188,7 +188,8 @@ quit    # 終了
 終了     # 終了
 ```
 
-### 使用例
+### チャットＣＬＩの使用例
+![チャットCLIの利用イメージ](images/chat.gif)
 ```sh
 Starting MCP server...
 Server connected and ready to handle requests.
