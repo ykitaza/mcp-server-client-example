@@ -8,16 +8,74 @@
 - **MCPの基礎学習**: Model Context Protocolの基本概念を理解するための最小限の実装例を提供
 - **シンプルな実装**: 必要最小限の機能に絞ったMCPサーバーの実装により、プロトコルの本質的な部分に焦点を当てる
 - **独立した実装**: Claude Desktop Appなどの特定のクライアントに依存せず、MCPサーバーを自前で実装する方法を示す
-- **コスト効率**: Google Gemini APIを採用することで、Anthropic Claude APIと比較してより低コストで試験的な実装が可能
+- **コストをかけず検証**: Google Gemini 経由で MCP を利用することで、コストをかけず（無料枠等の活用可）検証を行うことが可能
 
 このサンプルプロジェクトを通じて、MCPの基本的な仕組みとツール連携の実装方法を学ぶことができます。
 
-##  機能概要
-- MCPサーバー：数値比較ツールを提供
-- MCPクライアント：MCPサーバーとの通信を実装
-- GeminiチャットCLI：Google Gemini APIを使用したチャットインターフェース（MCPツール連携機能付き）
+## 🎯 機能概要
 
-## 🏗️ アーキテクチャ
+このプロジェクトは以下の主要機能を提供します：
+
+### MCPサーバー機能
+- 数値比較ツールの提供
+- ツールの登録・実行管理
+- 非同期通信によるレスポンス処理
+
+### MCPクライアント機能
+- サーバーとの双方向通信
+- 設定ファイルによる接続管理
+- エラーハンドリングとリトライ処理
+
+### チャットインターフェース
+- Google Gemini APIによる自然言語処理
+- MCPツールとの連携機能
+- 日本語に最適化された対話処理
+- わかりやすいエラー表示
+
+## 📋 必要要件
+- [Bun](https://bun.sh/) ランタイム（v1.0.0以上）
+- MCP対応クライアント（例：Claude Desktop App、Cline、Cursor）
+- Gemini API キー（チャットCLI利用時）
+
+## 🚀 クイックスタート
+
+### 1. プロジェクトのセットアップ
+```bash
+# 依存関係のインストール
+bun install
+
+# 環境変数ファイルの作成
+cp .env.example .env
+
+# .envファイルにGemini APIキーを設定
+# Google Cloud ConsoleからAPIキーを取得して設定
+GEMINI_API_KEY="your-api-key-here"
+```
+
+### 2. サーバー設定
+```json
+// server-config.jsonを作成
+{
+    "server": {
+        "command": "bun",
+        "args": [
+            "run",
+            "/absolute/path/to/mcp-server/index.ts"
+        ]
+    }
+}
+```
+※ パスは環境に合わせて適切な絶対パスに変更してください。
+
+### 3. 実行
+```bash
+# チャットCLIの起動
+bun run chat
+```
+
+## 🏗️ システム構成
+
+### ディレクトリ構造
 ```
 src/
 ├── index.ts                 # チャットCLIのエントリーポイント
@@ -32,7 +90,7 @@ src/
         └── compare-numbers.ts  # 数値比較ツール
 ```
 
-### 主要コンポーネント
+### コンポーネントの説明
 
 #### MCPサーバー
 - `src/mcp-server/`: Model Context Protocol準拠のサーバー実装
@@ -51,92 +109,111 @@ src/
 
 ### データフロー
 1. ユーザーがチャットCLIに入力
+   - 質問やコマンドをテキストで入力
+   - 入力は日本語で自然な形式が可能
+
 2. Geminiクライアントが入力を処理
+   - 入力テキストを分析
+   - ツール使用の必要性を判断
+   - 適切なツールとパラメータを選択
+
 3. 必要に応じてMCPツールを呼び出し
-4. ツールの実行結果をGeminiに渡して自然言語の応答を生成
+   - MCPクライアントを通じてサーバーと通信
+   - ツールに必要なパラメータを渡す
+   - 実行結果を受け取る
+
+4. ツールの実行結果をGeminiに渡して応答を生成
+   - ツールの出力を自然言語に変換
+   - コンテキストに応じた適切な説明を生成
+   - エラー発生時は分かりやすいメッセージを作成
+
 5. 結果をユーザーに表示
+   - 処理結果を日本語で分かりやすく表示
+   - エラーが発生した場合は対処方法も提示
 
-## 📋 必要要件
-- [Bun](https://bun.sh/) ランタイム（v1.0.0以上）
-- MCP対応クライアント（例：Claude Desktop App、Cline、Cursor）
-- [Google Cloud プロジェクト](https://console.cloud.google.com/)のGemini API キー（チャットCLI利用時）
+## ⚙️ 設定ガイド
 
-## 🚀 セットアップと実行
-1. 依存関係のインストール
-   ```bash
-   bun install
-   ```
+### サーバー設定
 
-2. 環境変数の設定
-   ```bash
-   # .envファイルをコピーして編集
-   cp .env.example .env
-   
-   # .envファイルにGemini APIキーを設定
-   # Google Cloud ConsoleからAPIキーを取得して設定
-   ```
-   ```env
-   GEMINI_API_KEY="your-api-key-here"
-   ```
+サーバーの設定は以下の2つのファイルで管理します：
 
-3. サーバー設定ファイルの作成
-   ```bash
-   # プロジェクトルートにserver-config.jsonを作成
-   touch server-config.json
-   ```
-   
-   ```json
-   {
-       "server": {
-           "command": "bun",
-           "args": [
-               "run",
-               "/absolute/path/to/mcp-server/index.ts"
-           ]
-       }
-   }
-   ```
-   ※ パスは環境に合わせて適切な絶対パスに変更してください。
+#### 1. 環境変数（.env）
+```env
+# Google Cloud ConsoleからAPIキーを取得して設定
+GEMINI_API_KEY="your-api-key-here"
+```
 
-4. 実行方法
-   ```bash
-   チャットCLIの起動
-   bun run chat
-   ```
+#### 2. サーバー設定（server-config.json）
+```json
+{
+  "mcpServers": {
+    "number-comparison": {
+      // サーバー本体の設定
+      "command": "bun",
+      "args": ["run", "/absolute/path/to/server/src/index.ts"],
+      
+      // オプション設定
+      "disabled": false,     // サーバーの有効/無効
+      "autoApprove": [],    // 自動承認するツール
+      "timeout": 30000      // タイムアウト時間（ミリ秒）
+    }
+  }
+}
+```
 
-## 💬 使用例
-   ```sh
-   Starting MCP server...
-   Server connected and ready to handle requests.
-   対話型チャットを開始します。終了するには「exit」「quit」「終了」と入力してください。
+| 設定項目     | 必須 | デフォルト値 | 説明                                    |
+|--------------|------|--------------|----------------------------------------|
+| `command`    | ✓    | -            | サーバー実行コマンド（bun/node等）      |
+| `args`       | ✓    | -            | 実行引数（サーバーファイルパス等）      |
+| `disabled`   | -    | false        | サーバーの無効化フラグ                  |
+| `autoApprove`| -    | []           | 自動承認するツールのリスト              |
+| `timeout`    | -    | 30000        | ツール実行のタイムアウト時間（ミリ秒）  |
 
-   質問を入力してください（終了するには「exit」と入力）: 9.11と9.9はどちらが大きい？
-   送信メッセージ: "9.11と9.9はどちらが大きい？"
-   関数呼び出し: {
-     name: "compare-numbers",
-     args: {
-       number2: 9.9,
-       number1: 9.11,
-     }
-   }
-   ツール結果: {
-     content: [
-       {
-         type: "text",
-         text: "The larger number is: 9.9",
-       }
-     ]
-   }
+⚠️ **重要な注意点**
+- サーバーファイルのパスは必ず**絶対パス**を使用
+- 設定変更後はクライアントの再起動が必要
+- `autoApprove`の使用は必要最小限に
+- 環境変数は`.env`ファイルで管理し、`.gitignore`に追加
 
-   応答：
-   9.9の方が9.11より大きいです。
-   ```
+## 💬 チャットCLIの使用
 
-3. チャットの終了
-   以下のいずれかのコマンドでチャットを終了できます：
-   - `exit`
-   - `quit`
-   - `終了`
+### 基本的な使い方
+```bash
+# チャットの開始
+bun run chat
+
+# チャットの終了方法
+exit    # 終了
+quit    # 終了
+終了     # 終了
+```
+
+### 使用例
+```sh
+Starting MCP server...
+Server connected and ready to handle requests.
+対話型チャットを開始します。終了するには「exit」「quit」「終了」と入力してください。
+
+質問: 9.11と9.9はどちらが大きい？
+送信メッセージ: "9.11と9.9はどちらが大きい？"
+関数呼び出し: {
+  name: "compare-numbers",
+  args: {
+    number2: 9.9,
+    number1: 9.11
+  }
+}
+ツール結果: {
+  content: [
+    {
+      type: "text",
+      text: "The larger number is: 9.11"
+    }
+  ]
+}
+
+応答：9.11の方が9.9より大きいです。
+```
 
 ### 📝 チャットCLIの特徴
 - Google Gemini APIを使用した自然言語対話
@@ -144,52 +221,8 @@ src/
 - 日本語での対話に最適化
 - ツールの実行結果を自然な日本語で説明
 
-##  クライアント設定
-### ファイル構成
-プロジェクトルートの`server-config.json`でクライアントのサーバー接続設定を管理します。このファイルはサーバーとの通信に必要な基本設定を含みます。
-
-### 設定項目
-| 設定項目   | 必須 | 説明                                |
-|------------|------|-------------------------------------|
-| `command`  | ✓    | サーバーの実行コマンド（例：bun）   |
-| `args`     | ✓    | コマンド引数（サーバーファイルパス等）|
-
-### ⚠️ 注意点
-- サーバーファイルのパスは必ず**絶対パス**を使用してください
-- 設定ファイルの変更後はクライアントの再起動が必要です
-- JSONの構文に従って正しく記述してください
-
-## ⚙️ サーバー設定
-### 設定ファイルの編集
-```json
-{
-  "mcpServers": {
-    "number-comparison": {
-      "command": "bun",
-      "args": ["run", "/absolute/path/to/server/src/index.ts"],
-      "disabled": false,
-      "autoApprove": []
-    }
-  }
-}
-```
-
-### 📌 重要設定項目
-| 設定項目     | 必須 | デフォルト値 | 説明                          |
-|--------------|------|--------------|-------------------------------|
-| `command`    | ✓    | -            | サーバー実行コマンド          |
-| `args`       | ✓    | -            | コマンド引数（絶対パス必須）  |
-| `disabled`   | -    | false        | サーバーの無効化              |
-| `autoApprove`| -    | []           | 自動承認ツールリスト          |
-
-### ⚠️ 注意事項
-- パス指定は必ず**絶対パス**を使用
-- 設定変更後はクライアントの再起動が必要
-- `autoApprove` の使用は最小限に
-
-## 📸 使用イメージ
-
-よくあるAIが間違えてしまう計算問題を例に、ツールの使用前後の比較を示します。
+## 📸 MCPツールの効果
+数値の比較のような、AIが間違えやすい計算問題での改善例を示します：
 
 ### ツール使用前
 ![通常のチャット画面](images/before.png)
@@ -197,45 +230,51 @@ src/
 ### ツール使用後
 ![数値比較ツールの実行結果](images/after.png)
 
+## 🧩 カスタムツールの追加
 
-## 🛠️ ツール使用例
+### 1. ツールの実装
+```typescript
+// server/src/tools/new-tool.ts
+import { z } from "zod";
+
+export const newTool = {
+  name: "new-tool",
+  schema: {
+    param1: z.string().describe("パラメータ説明"),
+    param2: z.number().min(0)
+  },
+  handler: async ({ param1, param2 }) => {
+    // 処理実装
+    return {
+      content: [{ type: 'text', text: '結果' }]
+    };
+  }
+};
+```
+
+### 2. ツールの登録
+```typescript
+// server/src/index.ts
+import { newTool } from "./tools/new-tool";
+
+server.tool(
+  newTool.name,
+  newTool.schema,
+  newTool.handler
+);
+```
+
+### 3. ツールの使用例
 ```xml
 <use_mcp_tool>
   <server_name>number-comparison</server_name>
-  <tool_name>compare-numbers</tool_name>
+  <tool_name>new-tool</tool_name>
   <arguments>
-    { "number1": 42, "number2": 24 }
+    { "param1": "test", "param2": 42 }
   </arguments>
 </use_mcp_tool>
 ```
 
 ✅ 実行結果：
 ```plaintext
-The larger number is: 42
-```
-
-## 🧩 カスタムツール追加
-1. ツール実装ファイル作成
-   ```bash
-   touch server/src/tools/new-tool.ts
-   ```
-
-2. ツール登録（server/src/index.ts）
-   ```typescript
-   // ... 既存コード ...
-   server.tool(
-     "new-tool",
-     {
-       param1: z.string().describe("パラメータ説明"),
-       param2: z.number().min(0)
-     },
-     async ({ param1, param2 }) => {
-       // 処理実装
-       return {
-         content: [{ type: 'text', text: '結果' }]
-       };
-     }
-   );
-   // ... 既存コード ...
-   ```
-
+結果が表示されます
