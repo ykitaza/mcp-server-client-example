@@ -18,6 +18,7 @@
 
 ### MCPサーバー機能
 - 数値比較ツールの提供
+  - 2つの数字の大小比較を行うツールを実装します。とても単純ですが、AIが間違えやすい比較問題(9.11と9.9の大小比較等)を解決します。
 - ツールの登録・実行管理
 - 非同期通信によるレスポンス処理
 
@@ -230,52 +231,3 @@ Server connected and ready to handle requests.
 
 ### ツール使用後
 ![数値比較ツールの実行結果](images/after.png)
-
-## 🧩 カスタムツールの追加
-
-### 1. ツールの実装
-```typescript
-// server/src/tools/new-tool.ts
-import { z } from "zod";
-
-export const newTool = {
-  name: "new-tool",
-  schema: {
-    param1: z.string().describe("パラメータ説明"),
-    param2: z.number().min(0)
-  },
-  handler: async ({ param1, param2 }) => {
-    // 処理実装
-    return {
-      content: [{ type: 'text', text: '結果' }]
-    };
-  }
-};
-```
-
-### 2. ツールの登録
-```typescript
-// server/src/index.ts
-import { newTool } from "./tools/new-tool";
-
-server.tool(
-  newTool.name,
-  newTool.schema,
-  newTool.handler
-);
-```
-
-### 3. ツールの使用例
-```xml
-<use_mcp_tool>
-  <server_name>number-comparison</server_name>
-  <tool_name>new-tool</tool_name>
-  <arguments>
-    { "param1": "test", "param2": 42 }
-  </arguments>
-</use_mcp_tool>
-```
-
-✅ 実行結果：
-```plaintext
-結果が表示されます
