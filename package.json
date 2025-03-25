@@ -1,7 +1,11 @@
 {
   "name": "mcp-server-sample",
-  "module": "index.ts",
+  "module": "src/index.ts",
   "type": "module",
+  "scripts": {
+    "build": "bun build ./src/index.ts --outdir=dist",
+    "chat": "bun run src/index.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest"
   },
@@ -9,6 +13,8 @@
     "typescript": "^5"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.7.0"
+    "@google/generative-ai": "^0.24.0",
+    "@modelcontextprotocol/sdk": "^1.7.0",
+    "dotenv": "^16.4.7"
   }
 }

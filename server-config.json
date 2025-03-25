@@ -1,0 +1,9 @@
+{
+    "server": {
+        "command": "bun",
+        "args": [
+            "run",
+            "./src/mcp-server/index.ts"
+        ]
+    }
+}
