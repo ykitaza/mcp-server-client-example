@@ -8,8 +8,19 @@ export class MCPToolClient {
     constructor(private config: ServerConfig) { }
 
     async initialize() {
+        // 最初のサーバー設定を使用
+        const serverKey = Object.keys(this.config)[0];
+        if (!serverKey) {
+            throw new Error('サーバー設定が見つかりません');
+        }
+
+        const serverConfig = this.config[serverKey];
+        if (!serverConfig) {
+            throw new Error(`サーバー設定"${serverKey}"が見つかりません`);
+        }
+
         // サーバー接続の設定
-        const transport = new StdioClientTransport(this.config.server);
+        const transport = new StdioClientTransport(serverConfig);
         this.mcpClient = new MCPClient({ name: "gemini-mcp-client", version: "1.0.0" });
         await this.mcpClient.connect(transport);
 

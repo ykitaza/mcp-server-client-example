@@ -2,7 +2,7 @@ import { readFile } from 'fs/promises';
 import { join } from 'path';
 
 export interface ServerConfig {
-    server: {
+    [key: string]: {
         command: string;
         args: string[];
     };
@@ -15,14 +15,25 @@ export async function loadConfig(): Promise<ServerConfig> {
         const config = JSON.parse(configContent) as ServerConfig;
 
         // 基本的なバリデーション
-        if (!config.server) {
-            throw new Error('設定ファイルに"server"セクションがありません');
+        const servers = Object.keys(config);
+        if (servers.length === 0) {
+            throw new Error('設定ファイルにサーバー設定が見つかりません');
         }
-        if (!config.server.command) {
-            throw new Error('設定ファイルに"command"が指定されていません');
-        }
-        if (!Array.isArray(config.server.args) || config.server.args.length === 0) {
-            throw new Error('設定ファイルに有効な"args"が指定されていません');
+
+        for (const serverKey of servers) {
+            if (!(serverKey in config)) {
+                throw new Error(`設定ファイルに"${serverKey}"が見つかりません`);
+            }
+            const serverConfig = config[serverKey];
+            if (typeof serverConfig !== 'object' || serverConfig === null) {
+                throw new Error(`設定ファイルの"${serverKey}"が正しい形式ではありません`);
+            }
+            if (!('command' in serverConfig) || typeof serverConfig.command !== 'string') {
+                throw new Error(`設定ファイルの"${serverKey}"に"command"が指定されていません`);
+            }
+            if (!('args' in serverConfig) || !Array.isArray(serverConfig.args) || serverConfig.args.length === 0) {
+                throw new Error(`設定ファイルの"${serverKey}"に有効な"args"が指定されていません`);
+            }
         }
 
         return config;

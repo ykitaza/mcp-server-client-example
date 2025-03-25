@@ -1,5 +1,5 @@
 {
-    "server": {
+    "my-simple-tool": {
         "command": "bun",
         "args": [
             "run",

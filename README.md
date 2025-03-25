@@ -57,7 +57,7 @@ GEMINI_API_KEY="your-api-key-here"
 ```json
 // server-config.jsonを作成
 {
-    "server": {
+    "my-simple-tool": {
         "command": "bun",
         "args": [
             "run",
@@ -146,19 +146,15 @@ GEMINI_API_KEY="your-api-key-here"
 
 #### 2. サーバー設定（server-config.json）
 ```json
+// server-config.jsonを作成
 {
-  "mcpServers": {
-    "number-comparison": {
-      // サーバー本体の設定
-      "command": "bun",
-      "args": ["run", "/absolute/path/to/server/src/index.ts"],
-      
-      // オプション設定
-      "disabled": false,     // サーバーの有効/無効
-      "autoApprove": [],    // 自動承認するツール
-      "timeout": 30000      // タイムアウト時間（ミリ秒）
+    "my-simple-tool": {
+        "command": "bun",
+        "args": [
+            "run",
+            "/absolute/path/to/mcp-server/index.ts"
+        ]
     }
-  }
 }
 ```
 
