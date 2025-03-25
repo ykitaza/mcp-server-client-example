@@ -2,7 +2,17 @@
 
 🔍 Model Context Protocol（MCP）の実装サンプルプロジェクト
 
-## 📚 機能概要
+## 💡 プロジェクトの背景
+このプロジェクトは以下の目的で作成されました：
+
+- **MCPの基礎学習**: Model Context Protocolの基本概念を理解するための最小限の実装例を提供
+- **シンプルな実装**: 必要最小限の機能に絞ったMCPサーバーの実装により、プロトコルの本質的な部分に焦点を当てる
+- **独立した実装**: Claude Desktop Appなどの特定のクライアントに依存せず、MCPサーバーを自前で実装する方法を示す
+- **コスト効率**: Google Gemini APIを採用することで、Anthropic Claude APIと比較してより低コストで試験的な実装が可能
+
+このサンプルプロジェクトを通じて、MCPの基本的な仕組みとツール連携の実装方法を学ぶことができます。
+
+##  機能概要
 - MCPサーバー：数値比較ツールを提供
 - MCPクライアント：MCPサーバーとの通信を実装
 - GeminiチャットCLI：Google Gemini APIを使用したチャットインターフェース（MCPツール連携機能付き）
@@ -94,13 +104,7 @@ src/
    bun run chat
    ```
 
-## 💬 GeminiチャットCLIの使用方法
-1. チャットの起動
-   ```bash
-   bun run chat
-   ```
-
-2. 対話の例
+## 💬 使用例
    ```sh
    Starting MCP server...
    Server connected and ready to handle requests.
